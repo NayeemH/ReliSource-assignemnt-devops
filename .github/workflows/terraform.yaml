@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       destroy:
-        description: "Trigger Terraform destroy"
+        description: 'Trigger Terraform destroy'
         required: false
         type: boolean
 
@@ -16,62 +16,62 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.4.6
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.4.6
 
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Terraform Init
-        run: terraform init
-        working-directory: terraform-infra-new
+    - name: Terraform Init
+      run: terraform init -reconfigure
+      working-directory: terraform-infra-new
 
-      - name: Terraform Plan
-        run: terraform plan
-        working-directory: terraform-infra-new
+    - name: Terraform Plan
+      run: terraform plan
+      working-directory: terraform-infra-new
 
-      - name: Terraform Apply (requires approval)
-        if: github.event_name == 'push'
-        run: |
-          terraform apply -auto-approve
-        working-directory: terraform-infra-new
-        env:
-          TF_VAR_approval: ${{ secrets.TF_VAR_APPROVAL }}
-        # This step will run automatically, but the apply will not be executed until manually approved.
-        # Use a GitHub Actions approval feature to manually approve the apply step.
-
+    - name: Terraform Apply (requires approval)
+      if: github.event_name == 'push'
+      run: |
+        terraform apply -auto-approve
+      working-directory: terraform-infra-new
+      env:
+        TF_VAR_approval: ${{ secrets.TF_VAR_APPROVAL }}
+      # This step will run automatically, but the apply will not be executed until manually approved.
+      # Use a GitHub Actions approval feature to manually approve the apply step.
+  
   destroy:
     if: github.event.inputs.destroy == 'true'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.4.6
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.4.6
 
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Terraform Init
-        run: terraform init
-        working-directory: terraform-infra-new
+    - name: Terraform Init
+      run: terraform init -reconfigure
+      working-directory: terraform-infra-new
 
-      - name: Terraform Destroy
-        run: terraform destroy -auto-approve
-        working-directory: terraform-infra-new
-        env:
-          TF_VAR_approval: ${{ secrets.TF_VAR_APPROVAL }}
-        # This step will run only when the `destroy` input is set to true manually in the GitHub Actions interface.
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve
+      working-directory: terraform-infra-new
+      env:
+        TF_VAR_approval: ${{ secrets.TF_VAR_APPROVAL }}
+      # This step will run only when the `destroy` input is set to true manually in the GitHub Actions interface.
