@@ -18,6 +18,10 @@ jobs:
         with:
           terraform_version: 1.4.6
 
+      - name: Terraform Init
+        run: terraform init -reconfigure
+        working-directory: terraform-infra-new
+
       - name: Terraform Apply
         run: terraform apply -auto-approve
         working-directory: terraform-infra-new
