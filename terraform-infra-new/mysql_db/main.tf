@@ -14,6 +14,7 @@ resource "azurerm_mysql_flexible_server" "mysql_server" {
   version             = "5.7"
   administrator_login = "mysqladmin"
   administrator_password = "Password123!"
+  zone = "3"
 }
 
 resource "azurerm_mysql_flexible_database" "mysql_database" {

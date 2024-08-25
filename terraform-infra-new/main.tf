@@ -30,6 +30,7 @@ module "web_app" {
   source              = "./web_app"
   resource_group_name = azurerm_resource_group.relisource.name
   location            = azurerm_resource_group.relisource.location
+  web_app_subnet_id   = module.application_vnet.web_app_subnet_id
 }
 
 module "mysql_db" {
