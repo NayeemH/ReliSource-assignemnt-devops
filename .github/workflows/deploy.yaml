@@ -1,0 +1,39 @@
+name: Deploy to Azure Web App using Docker Hub
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: Build and push image to Docker Hub
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }} .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
+        slot-name: 'production'
+        images: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
+
+    - name: Azure Web App Restart
+      uses: Azure/azure-cli@v1
+      with:
+        inlineScript: az webapp restart --name ${{ secrets.AZURE_WEB_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
