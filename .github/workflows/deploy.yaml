@@ -1,43 +1,43 @@
-name: Deploy to Azure Web App using Docker Hub
+# name: Deploy to Azure Web App using Docker Hub
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch:
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v1
 
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+#       - name: Log in to Docker Hub
+#         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      - name: Build and push image to Docker Hub
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }} .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }}
+#       - name: Build and push image to Docker Hub
+#         run: |
+#           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }} .
+#           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }}
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+#       - name: Azure Login
+#         uses: azure/login@v1
+#         with:
+#           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
-          slot-name: "production"
-          images: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }}
+#       - name: Deploy to Azure Web App
+#         uses: azure/webapps-deploy@v2
+#         with:
+#           app-name: ${{ secrets.AZURE_WEB_APP_NAME }}
+#           slot-name: "production"
+#           images: |
+#             ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }}
 
-      - name: Azure Web App Restart
-        run: |
-          az webapp restart --name ${{ secrets.AZURE_WEB_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+#       - name: Azure Web App Restart
+#         run: |
+#           az webapp restart --name ${{ secrets.AZURE_WEB_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
