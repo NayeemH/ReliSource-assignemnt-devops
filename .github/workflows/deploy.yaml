@@ -33,7 +33,15 @@ jobs:
         images: |
           ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{ github.sha }}
 
-    - name: Azure Web App Restart
-      uses: Azure/azure-cli@v1
+    - name: Install Azure CLI
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+    - name: Azure Login
+      uses: azure/login@v1
       with:
-        inlineScript: az webapp restart --name ${{ secrets.AZURE_WEB_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Azure Web App Restart
+      run: |
+        az webapp restart --name ${{ secrets.AZURE_WEB_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
