@@ -25,6 +25,11 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }} .
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }}
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
@@ -32,15 +37,6 @@ jobs:
           slot-name: "production"
           images: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/nodejs-app:${{ github.sha }}
-
-      - name: Install Azure CLI
-        run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Azure Web App Restart
         run: |
